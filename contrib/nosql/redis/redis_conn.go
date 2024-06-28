@@ -10,6 +10,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/otel"
@@ -124,6 +125,9 @@ func (c *Conn) doCommand(ctx context.Context, command string, args ...interface{
 			}
 		}
 
+	case `BRPop`:
+		timeoutSec := gconv.Int64(argStrSlice[len(argStrSlice)-1])
+		c.redis.client.BRPop(ctx, time.Duration(timeoutSec)*time.Second, argStrSlice[:len(argStrSlice)-1]...)
 	default:
 		arguments := make([]interface{}, len(args)+1)
 		copy(arguments, []interface{}{command})
